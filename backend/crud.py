@@ -32,3 +32,44 @@ async def add_transaction(db: AsyncSession, transaction: schemas.TransactionCrea
     await db.commit()
     await db.refresh(db_transaction)
     return db_transaction
+
+async def get_portfolios_by_user(db: AsyncSession, user_id: int):
+    result = await db.execute(select(models.Portfolio).filter(models.Portfolio.owner_id == user_id))
+    return result.scalars().all()
+
+async def get_transactions_by_user(db: AsyncSession, user_id: int):
+    result = await db.execute(
+        select(models.Transaction)
+        .join(models.Portfolio)
+        .filter(models.Portfolio.owner_id == user_id)
+    )
+    return result.scalars().all()
+
+async def get_all_users(db: AsyncSession):
+    result = await db.execute(select(models.User))
+    return result.scalars().all()
+
+async def get_transactions_by_portfolio(db: AsyncSession, portfolio_id: int):
+    result = await db.execute(
+        select(models.Transaction).filter(models.Transaction.portfolio_id == portfolio_id)
+    )
+    return result.scalars().all()
+
+async def get_transaction_by_id(db: AsyncSession, transaction_id: int):
+    result = await db.execute(select(models.Transaction).filter(models.Transaction.id == transaction_id))
+    return result.scalars().first()
+
+async def delete_transaction(db: AsyncSession, transaction_id: int):
+    await db.execute(
+        models.Transaction.__table__.delete().where(models.Transaction.id == transaction_id)
+    )
+    await db.commit()
+
+async def delete_portfolio(db: AsyncSession, portfolio_id: int):
+    await db.execute(
+        models.Transaction.__table__.delete().where(models.Transaction.portfolio_id == portfolio_id)
+    )
+    await db.execute(
+        models.Portfolio.__table__.delete().where(models.Portfolio.id == portfolio_id)
+    )
+    await db.commit()

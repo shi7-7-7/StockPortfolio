@@ -196,7 +196,7 @@ button:hover {
     gap: 8px;
 }
 
-#add-portfolio input, #add-transaction input, #add-transaction select {
+#add-portfolio input:not([type="checkbox"]), #add-transaction input:not([type="checkbox"]), #add-transaction select {
     padding: 8px 12px;
     border: 1px solid silver;
     border-radius: 4px;
@@ -205,7 +205,7 @@ button:hover {
     height: 36px;
 }
 
-#add-portfolio input:focus, #add-transaction input:focus, #add-transaction select:focus {
+#add-portfolio input:not([type="checkbox"]):focus, #add-transaction input:not([type="checkbox"]):focus, #add-transaction select:focus {
     outline: none;
     border-color: steelblue;
 }
@@ -235,6 +235,60 @@ button:hover {
     border: 1px solid silver;
     border-radius: 8px;
     padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.delete-btn {
+    background-color: white;
+    color: indianred;
+    border: 1px solid indianred;
+    margin-top: 8px;
+}
+
+.delete-btn:hover {
+    background-color: indianred;
+    color: white;
+}
+
+/* PORTFOLIO DETAIL TABLE */
+
+#portfolio-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid silver;
+    margin-top: 16px;
+}
+
+#portfolio-table th, #portfolio-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid silver;
+    font-size: 14px;
+}
+
+#portfolio-table th {
+    background-color: whitesmoke;
+    font-weight: bold;
+}
+
+#portfolio-table tr:last-child td {
+    border-bottom: none;
+}
+
+#portfolio-summary {
+    display: flex;
+    gap: 32px;
+    margin-top: 16px;
+    padding: 16px;
+    background-color: white;
+    border: 1px solid silver;
+    border-radius: 8px;
+    font-size: 14px;
 }
 
 /* TRANSACTIONS LIST */

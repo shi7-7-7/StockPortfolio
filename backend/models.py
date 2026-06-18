@@ -30,8 +30,8 @@ class Transaction(Base):
     ticker = Column(String, index=True)
     transaction_type = Column(String)
     quantity = Column(Float)
-    price = Column(Float)
-    transaction_date = Column(DateTime)
+    price = Column(Float, nullable=True)
+    transaction_date = Column(DateTime, nullable=True)
     timestamp = Column(DateTime, default=datetime.utcnow)
     portfolio_id = Column(Integer, ForeignKey("portfolios.id"))
     

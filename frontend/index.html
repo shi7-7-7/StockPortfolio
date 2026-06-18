@@ -67,9 +67,18 @@
             <input type="number" id="transaction-quantity" placeholder="Ilość">
             <input type="number" id="transaction-price" placeholder="Cena">
             <input type="datetime-local" id="transaction-date">
-            <input type="number" id="transaction-portfolio-id" placeholder="ID portfela">
+            <select id="transaction-portfolio-id">
+                <option value="">-- Wybierz portfel --</option>
+            </select>
             <button id="transaction-submit">Dodaj</button>
             <button id="transaction-cancel">Anuluj</button>
+        </div>
+
+        <div id="view-portfolio-detail" class="hidden">
+            <button id="portfolio-detail-back">← Wróć do portfeli</button>
+            <h2 id="portfolio-detail-name"></h2>
+            <button id="add-transaction-detail-btn">Dodaj transakcję</button>
+            <div id="portfolio-transactions-list"></div>
         </div>
 
         <div id="view-users" class="hidden">
