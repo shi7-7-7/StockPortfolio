@@ -4,8 +4,93 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Portfolio</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
+
+<div id="login">
+    <button id="register-page">Nie masz konta? Zarejestruj się</button>
+    <input type="text" id="login-username">
+    <input type="password" id="login-password">
+    <button id="login-submit">Zaloguj się</button>
+</div>
+
+<div id="register" class="hidden">
+    <button id="login-page">Masz już konto? Zaloguj się</button>
+    <input type="text" id="register-username">
+    <input type="password" id="register-password">
+    <button id="register-submit">Zarejestruj się</button>
+</div>
+
+<div id="logged-view" class="hidden">
+    <div id="sidebar">
+        <p id="sidebar-username"></p>
+        <button id="nav-portfolios">Portfele</button>
+        <button id="nav-transactions">Transakcje</button>
+        <button id="nav-users">Użytkownicy</button>
+        <button id="logout">Wyloguj się</button>
+    </div>
+    <div id="main-content">
+
+        <div id="view-portfolios" class="hidden">
+            <h2>Moje portfele</h2>
+            <button id="add-portfolio-btn">Dodaj portfel</button>
+            <div id="portfolios-list"></div>
+        </div>
+
+        <div id="add-portfolio" class="hidden">
+            <h2>Nowy portfel</h2>
+            <input type="text" id="portfolio-name">
+            <div class="checkbox-row">
+                <input type="checkbox" id="portfolio-public">
+                <label for="portfolio-public">Publiczny</label>
+            </div>
+            <button id="portfolio-submit">Utwórz</button>
+            <button id="portfolio-cancel">Anuluj</button>
+        </div>
+
+        <div id="view-transactions" class="hidden">
+            <h2>Wszystkie transakcje</h2>
+            <button id="add-transaction-btn">Dodaj transakcję</button>
+            <div id="transactions-list"></div>
+        </div>
+
+        <div id="add-transaction" class="hidden">
+            <h2>Nowa transakcja</h2>
+            <input type="text" id="transaction-ticker" placeholder="Ticker (np. AAPL)" list="ticker-suggestions" autocomplete="off">
+            <datalist id="ticker-suggestions"></datalist>
+            <select id="transaction-type">
+                <option value="">-- Wybierz typ --</option>
+                <option value="buy">Kupno (buy)</option>
+                <option value="sell">Sprzedaż (sell)</option>
+            </select>
+            <input type="number" id="transaction-quantity" placeholder="Ilość">
+            <input type="number" id="transaction-price" placeholder="Cena">
+            <input type="datetime-local" id="transaction-date">
+            <input type="number" id="transaction-portfolio-id" placeholder="ID portfela">
+            <button id="transaction-submit">Dodaj</button>
+            <button id="transaction-cancel">Anuluj</button>
+        </div>
+
+        <div id="view-users" class="hidden">
+            <h2>Użytkownicy</h2>
+            <table id="users-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nazwa użytkownika</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table-body"></tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script src="script.js"></script>
 </body>
 </html>

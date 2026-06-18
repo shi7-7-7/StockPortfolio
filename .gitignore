@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual env
+.venv/
+
+# Env
+.env
+
+# Docker
+docker-compose.override.yml
+
+# Baza danych (jeśli lokalna)
+*.db
+*.sqlite
+
+# IDE
+.vscode/
+.idea/
+
+# System
+.DS_Store
+Thumbs.db

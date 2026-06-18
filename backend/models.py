@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from database import Base
+from backend.database import Base
 
 class User(Base):
     __tablename__ = "users"
@@ -31,6 +31,7 @@ class Transaction(Base):
     transaction_type = Column(String)
     quantity = Column(Float)
     price = Column(Float)
+    transaction_date = Column(DateTime)
     timestamp = Column(DateTime, default=datetime.utcnow)
     portfolio_id = Column(Integer, ForeignKey("portfolios.id"))
     
