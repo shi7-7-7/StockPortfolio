@@ -5,21 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Portfolio</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
 <div id="login">
-    <button id="register-page">Nie masz konta? Zarejestruj się</button>
-    <input type="text" id="login-username">
-    <input type="password" id="login-password">
+    <h2>Logowanie</h2>
+    <label for="login-username">Nazwa użytkownika</label>
+    <input type="text" id="login-username" placeholder="Wpisz nazwę użytkownika">
+    <label for="login-password">Hasło</label>
+    <input type="password" id="login-password" placeholder="Wpisz hasło">
     <button id="login-submit">Zaloguj się</button>
+    <button id="register-page" class="link-btn">Nie masz konta? Zarejestruj się</button>
 </div>
 
 <div id="register" class="hidden">
-    <button id="login-page">Masz już konto? Zaloguj się</button>
-    <input type="text" id="register-username">
-    <input type="password" id="register-password">
+    <h2>Rejestracja</h2>
+    <label for="register-first-name">Imię</label>
+    <input type="text" id="register-first-name" placeholder="Wpisz imię">
+    <label for="register-last-name">Nazwisko</label>
+    <input type="text" id="register-last-name" placeholder="Wpisz nazwisko">
+    <label for="register-username">Nazwa użytkownika</label>
+    <input type="text" id="register-username" placeholder="Wpisz nazwę użytkownika">
+    <label for="register-password">Hasło</label>
+    <input type="password" id="register-password" placeholder="Wpisz hasło">
     <button id="register-submit">Zarejestruj się</button>
+    <button id="login-page" class="link-btn">Masz już konto? Zaloguj się</button>
 </div>
 
 <div id="logged-view" class="hidden">
@@ -27,6 +38,7 @@
         <p id="sidebar-username"></p>
         <button id="nav-portfolios">Portfele</button>
         <button id="nav-transactions">Transakcje</button>
+        <button id="nav-charts">Wykresy</button>
         <button id="nav-users">Użytkownicy</button>
         <button id="logout">Wyloguj się</button>
     </div>
@@ -36,6 +48,14 @@
             <h2>Moje portfele</h2>
             <button id="add-portfolio-btn">Dodaj portfel</button>
             <div id="portfolios-list"></div>
+        </div>
+
+        <div id="deposit-modal" class="hidden">
+            <h2>Doładuj saldo</h2>
+            <p id="deposit-current-balance"></p>
+            <input type="number" id="deposit-amount" placeholder="Kwota (PLN)" min="0.01" step="0.01">
+            <button id="deposit-submit">Doładuj</button>
+            <button id="deposit-cancel">Anuluj</button>
         </div>
 
         <div id="add-portfolio" class="hidden">
@@ -60,25 +80,62 @@
             <input type="text" id="transaction-ticker" placeholder="Ticker (np. AAPL)" list="ticker-suggestions" autocomplete="off">
             <datalist id="ticker-suggestions"></datalist>
             <select id="transaction-type">
-                <option value="">-- Wybierz typ --</option>
                 <option value="buy">Kupno (buy)</option>
-                <option value="sell">Sprzedaż (sell)</option>
             </select>
             <input type="number" id="transaction-quantity" placeholder="Ilość">
-            <input type="number" id="transaction-price" placeholder="Cena">
-            <input type="datetime-local" id="transaction-date">
+            <div class="price-row">
+                <input type="number" id="transaction-price" placeholder="Cena (opcjonalna — pobierzemy automatycznie)">
+                <span id="transaction-currency" class="currency-label"></span>
+            </div>
+            <input type="datetime-local" id="transaction-date" required>
             <select id="transaction-portfolio-id">
                 <option value="">-- Wybierz portfel --</option>
             </select>
+            <div class="checkbox-row">
+                <input type="checkbox" id="transaction-use-balance">
+                <label for="transaction-use-balance">Zapłać z salda (<span id="form-balance-display">— PLN</span>)</label>
+            </div>
             <button id="transaction-submit">Dodaj</button>
             <button id="transaction-cancel">Anuluj</button>
         </div>
 
+        <div id="sell-transaction" class="hidden">
+            <h2>Sprzedaj: <span id="sell-ticker-label"></span></h2>
+            <input type="number" id="sell-quantity" placeholder="Ilość">
+            <div class="price-row">
+                <input type="number" id="sell-price" placeholder="Cena sprzedaży">
+                <span id="sell-currency" class="currency-label"></span>
+            </div>
+            <input type="datetime-local" id="sell-date" required>
+            <button id="sell-submit">Sprzedaj</button>
+            <button id="sell-cancel">Anuluj</button>
+        </div>
+
         <div id="view-portfolio-detail" class="hidden">
-            <button id="portfolio-detail-back">← Wróć do portfeli</button>
-            <h2 id="portfolio-detail-name"></h2>
+            <div id="portfolio-detail-header">
+                <button id="portfolio-detail-back">← Wróć do portfeli</button>
+                <h2 id="portfolio-detail-name"></h2>
+                <div id="portfolio-balance-row">
+                    <span id="portfolio-balance-display">Saldo: — PLN</span>
+                    <button id="deposit-btn">+ Doładuj</button>
+                </div>
+            </div>
             <button id="add-transaction-detail-btn">Dodaj transakcję</button>
             <div id="portfolio-transactions-list"></div>
+        </div>
+
+        <div id="view-charts" class="hidden">
+            <h2>Wykresy</h2>
+            <div id="charts-container">
+                <div class="chart-card">
+                    <h3>Alokacja portfela</h3>
+                    <canvas id="chart-allocation"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Zysk/Strata per ticker (PLN)</h3>
+                    <canvas id="chart-profit"></canvas>
+                </div>
+            </div>
         </div>
 
         <div id="view-users" class="hidden">
@@ -88,17 +145,28 @@
                     <tr>
                         <th>ID</th>
                         <th>Nazwa użytkownika</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody id="users-table-body"></tbody>
             </table>
         </div>
 
+        <div id="view-user-portfolios" class="hidden">
+            <button id="user-portfolios-back">← Wróć do użytkowników</button>
+            <h2 id="user-portfolios-name"></h2>
+            <div id="user-portfolios-list"></div>
+        </div>
+
+        <div id="view-public-portfolio" class="hidden">
+            <button id="public-portfolio-back">← Wróć do użytkownika</button>
+            <h2 id="public-portfolio-name"></h2>
+            <div id="public-portfolio-transactions-list"></div>
+        </div>
+
     </div>
 
 </div>
-
-
 
 <script src="script.js"></script>
 </body>

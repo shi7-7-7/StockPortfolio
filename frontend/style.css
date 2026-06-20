@@ -27,8 +27,21 @@ body {
     border: 1px solid silver;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    width: 320px;
+    gap: 6px;
+    width: 360px;
+}
+
+#login h2, #register h2 {
+    font-size: 20px;
+    color: darkslategray;
+    margin-bottom: 8px;
+}
+
+#login label, #register label {
+    font-size: 13px;
+    font-weight: bold;
+    color: darkslategray;
+    margin-top: 6px;
 }
 
 #login input, #register input {
@@ -36,11 +49,29 @@ body {
     border: 1px solid silver;
     border-radius: 4px;
     font-size: 14px;
+    margin-bottom: 4px;
 }
 
 #login input:focus, #register input:focus {
     outline: none;
     border-color: steelblue;
+}
+
+.link-btn {
+    background: none;
+    border: none;
+    color: steelblue;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 4px 0;
+    text-align: left;
+    margin-top: 4px;
+}
+
+.link-btn:hover {
+    color: royalblue;
+    background: none;
+    text-decoration: underline;
 }
 
 /* BUTTONS */
@@ -177,9 +208,48 @@ button:hover {
     border-bottom: none;
 }
 
+/* PORTFOLIO DETAIL HEADER */
+
+#portfolio-detail-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+#portfolio-detail-header h2 {
+    margin-bottom: 0;
+    flex: 1;
+}
+
+#portfolio-balance-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: white;
+    border: 1px solid silver;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 14px;
+}
+
+#portfolio-balance-row #deposit-btn {
+    background-color: steelblue;
+    color: white;
+    border: 1px solid steelblue;
+    padding: 4px 12px;
+    font-size: 13px;
+}
+
+#portfolio-balance-row #deposit-btn:hover {
+    background-color: royalblue;
+    border-color: royalblue;
+}
+
 /* MODALS */
 
-#add-portfolio, #add-transaction {
+#add-portfolio, #add-transaction, #sell-transaction, #deposit-modal {
     background-color: white;
     padding: 32px;
     border-radius: 8px;
@@ -196,7 +266,7 @@ button:hover {
     gap: 8px;
 }
 
-#add-portfolio input:not([type="checkbox"]), #add-transaction input:not([type="checkbox"]), #add-transaction select {
+#add-portfolio input:not([type="checkbox"]), #add-transaction input:not([type="checkbox"]), #add-transaction select, #sell-transaction input, #deposit-modal input {
     padding: 8px 12px;
     border: 1px solid silver;
     border-radius: 4px;
@@ -205,9 +275,63 @@ button:hover {
     height: 36px;
 }
 
-#add-portfolio input:not([type="checkbox"]):focus, #add-transaction input:not([type="checkbox"]):focus, #add-transaction select:focus {
+#add-portfolio input:not([type="checkbox"]):focus, #add-transaction input:not([type="checkbox"]):focus, #add-transaction select:focus, #sell-transaction input:focus, #deposit-modal input:focus {
     outline: none;
     border-color: steelblue;
+}
+
+/* UTILITY COLORS */
+
+.profit-positive { color: seagreen; }
+.profit-negative { color: indianred; }
+.type-buy { color: steelblue; }
+.type-sell { color: indianred; }
+.muted { color: gray; }
+
+.currency-warning {
+    color: goldenrod;
+    font-size: 12px;
+}
+
+/* TABLE ACTIONS CELL */
+
+.actions-cell {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+/* SUMMARY ITEMS */
+
+.summary-pln {
+    color: gray;
+}
+
+.price-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.price-row input {
+    flex: 1;
+}
+
+.currency-label {
+    font-size: 13px;
+    color: steelblue;
+    min-width: 36px;
+}
+
+.sell-btn {
+    background-color: white;
+    color: steelblue;
+    border: 1px solid steelblue;
+}
+
+.sell-btn:hover {
+    background-color: steelblue;
+    color: white;
 }
 
 #portfolio-submit, #transaction-submit {
@@ -289,6 +413,41 @@ button:hover {
     border: 1px solid silver;
     border-radius: 8px;
     font-size: 14px;
+}
+
+/* CHARTS */
+
+#charts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 24px;
+    margin-top: 16px;
+}
+
+.chart-card {
+    background-color: white;
+    border: 1px solid silver;
+    border-radius: 8px;
+    padding: 24px;
+}
+
+.chart-card h3 {
+    font-size: 15px;
+    color: darkslategray;
+    margin-bottom: 16px;
+}
+
+/* USER PORTFOLIOS */
+
+.view-btn {
+    background-color: white;
+    color: steelblue;
+    border: 1px solid steelblue;
+}
+
+.view-btn:hover {
+    background-color: steelblue;
+    color: white;
 }
 
 /* TRANSACTIONS LIST */
@@ -385,7 +544,7 @@ button:hover {
     }
 
     /* modal na pełną szerokość */
-    #add-portfolio, #add-transaction {
+    #add-portfolio, #add-transaction, #sell-transaction, #deposit-modal {
         width: 90%;
         padding: 24px 16px;
     }

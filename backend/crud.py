@@ -9,7 +9,12 @@ async def get_user_by_username(db: AsyncSession, username: str):
 
 async def create_user(db: AsyncSession, user: schemas.UserCreate):
     hashed = hash_password(user.password)
-    db_user = models.User(username=user.username, hashed_password=hashed)
+    db_user = models.User(
+        username=user.username,
+        hashed_password=hashed,
+        first_name=user.first_name,
+        last_name=user.last_name
+    )
     db.add(db_user)
     await db.commit()
     await db.refresh(db_user)
@@ -49,11 +54,35 @@ async def get_all_users(db: AsyncSession):
     result = await db.execute(select(models.User))
     return result.scalars().all()
 
+async def get_public_portfolios_by_user(db: AsyncSession, user_id: int):
+    result = await db.execute(
+        select(models.Portfolio).filter(
+            models.Portfolio.owner_id == user_id,
+            models.Portfolio.is_public == True
+        )
+    )
+    return result.scalars().all()
+
 async def get_transactions_by_portfolio(db: AsyncSession, portfolio_id: int):
     result = await db.execute(
         select(models.Transaction).filter(models.Transaction.portfolio_id == portfolio_id)
     )
     return result.scalars().all()
+
+async def get_balance(db: AsyncSession, user_id: int, portfolio_id: int) -> float:
+    result = await db.execute(
+        select(models.Deposit.amount).filter(
+            models.Deposit.user_id == user_id,
+            models.Deposit.portfolio_id == portfolio_id
+        )
+    )
+    amounts = result.scalars().all()
+    return round(sum(amounts), 2) if amounts else 0.0
+
+async def create_deposit(db: AsyncSession, user_id: int, amount: float, portfolio_id: int):
+    deposit = models.Deposit(user_id=user_id, amount=amount, portfolio_id=portfolio_id)
+    db.add(deposit)
+    await db.commit()
 
 async def get_transaction_by_id(db: AsyncSession, transaction_id: int):
     result = await db.execute(select(models.Transaction).filter(models.Transaction.id == transaction_id))

@@ -11,6 +11,8 @@ class TransactionBase(BaseModel):
 
 class TransactionCreate(TransactionBase):
     portfolio_id: int
+    transaction_date: datetime
+    use_balance: bool = False
 
 class TransactionResponse(TransactionBase):
     id: int
@@ -33,9 +35,11 @@ class TransactionEnriched(BaseModel):
 
 class PortfolioSummary(BaseModel):
     transactions: List[TransactionEnriched]
-    total_invested: float
-    current_value: float
-    total_profit: float
+    cost_basis_pln: float
+    current_value_pln: float
+    unrealized_profit_pln: float
+    realized_profit_pln: float
+    total_profit_pln: float
 
 class PortfolioBase(BaseModel):
     name: str
@@ -70,16 +74,22 @@ class PortfolioResponse(PortfolioBase):
 class UserCreate(BaseModel):
     username: str
     password: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
 
 class UserCreationResponse(BaseModel):
     id: int
     username: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
 class UserListResponse(BaseModel):
     id: int
     username: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -89,3 +99,10 @@ class UserResponse(BaseModel):
     portfolios: List[PortfolioResponse] = []
 
     model_config = ConfigDict(from_attributes=True)
+
+class DepositCreate(BaseModel):
+    amount: float
+    portfolio_id: int
+
+class BalanceResponse(BaseModel):
+    balance: float
