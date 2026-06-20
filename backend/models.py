@@ -25,15 +25,6 @@ class Portfolio(Base):
     owner = relationship("User", back_populates="portfolios")
     transactions = relationship("Transaction", back_populates="portfolio")
 
-class Deposit(Base):
-    __tablename__ = "deposits"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    portfolio_id = Column(Integer, ForeignKey("portfolios.id"), nullable=True)
-    amount = Column(Float)
-    timestamp = Column(DateTime, default=datetime.utcnow)
-
 class Transaction(Base):
     __tablename__ = "transactions"
 

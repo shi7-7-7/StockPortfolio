@@ -69,21 +69,6 @@ async def get_transactions_by_portfolio(db: AsyncSession, portfolio_id: int):
     )
     return result.scalars().all()
 
-async def get_balance(db: AsyncSession, user_id: int, portfolio_id: int) -> float:
-    result = await db.execute(
-        select(models.Deposit.amount).filter(
-            models.Deposit.user_id == user_id,
-            models.Deposit.portfolio_id == portfolio_id
-        )
-    )
-    amounts = result.scalars().all()
-    return round(sum(amounts), 2) if amounts else 0.0
-
-async def create_deposit(db: AsyncSession, user_id: int, amount: float, portfolio_id: int):
-    deposit = models.Deposit(user_id=user_id, amount=amount, portfolio_id=portfolio_id)
-    db.add(deposit)
-    await db.commit()
-
 async def get_transaction_by_id(db: AsyncSession, transaction_id: int):
     result = await db.execute(select(models.Transaction).filter(models.Transaction.id == transaction_id))
     return result.scalars().first()

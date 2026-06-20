@@ -2,13 +2,13 @@ from fastapi import FastAPI
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, date
 from backend.auth import verify_password, create_access_token
 from sqlalchemy.ext.asyncio import AsyncSession
 from contextlib import asynccontextmanager
 from backend.database import Base, engine, get_db
 from backend import schemas
-from backend.models import User, Portfolio, Transaction
+from backend.models import User
 from backend.auth import get_current_user
 import backend.crud as crud
 import yfinance as yf
@@ -278,63 +278,10 @@ async def add_transaction(
         auto_price = await asyncio.to_thread(fetch_hist_price)
         if auto_price is None:
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                                detail="Nie udało się pobrać ceny dla tej daty — podaj cenę ręcznie")
+                                detail="Nie udało się pobrać ceny dla tej daty, podaj cenę ręcznie")
         transaction = transaction.model_copy(update={"price": round(auto_price, 4)})
 
-    if transaction.use_balance:
-        cost = (transaction.price or 0) * transaction.quantity
-        def fetch_pln_rate():
-            try:
-                currency = yf.Ticker(transaction.ticker).fast_info.currency
-                if currency == "PLN":
-                    return 1.0
-                return yf.Ticker(f"{currency}PLN=X").fast_info.last_price
-            except Exception:
-                return None
-        pln_rate = await asyncio.to_thread(fetch_pln_rate)
-        if pln_rate is None:
-            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                                detail="Nie udało się pobrać kursu PLN")
-        cost_pln = round(cost * pln_rate, 2)
-        balance = await crud.get_balance(db, current_user.id, transaction.portfolio_id)
-        if balance < cost_pln:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                detail=f"Niewystarczające saldo. Potrzebujesz {cost_pln} PLN, masz {balance} PLN")
-        await crud.create_deposit(db, current_user.id, -cost_pln, transaction.portfolio_id)
-
     return await crud.add_transaction(db, transaction)
-
-@app.get("/portfolios/{portfolio_id}/balance", response_model=schemas.BalanceResponse)
-async def get_portfolio_balance(
-    portfolio_id: int,
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
-):
-    db_portfolio = await crud.get_portfolio_by_id(db, portfolio_id)
-    if db_portfolio is None:
-        raise HTTPException(status_code=404, detail="Portfel nie istnieje")
-    if db_portfolio.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Nie masz uprawnień")
-    balance = await crud.get_balance(db, current_user.id, portfolio_id)
-    return {"balance": balance}
-
-@app.post("/portfolios/{portfolio_id}/deposit", response_model=schemas.BalanceResponse)
-async def portfolio_deposit(
-    portfolio_id: int,
-    deposit: schemas.DepositCreate,
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
-):
-    db_portfolio = await crud.get_portfolio_by_id(db, portfolio_id)
-    if db_portfolio is None:
-        raise HTTPException(status_code=404, detail="Portfel nie istnieje")
-    if db_portfolio.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Nie masz uprawnień")
-    if deposit.amount <= 0:
-        raise HTTPException(status_code=400, detail="Kwota musi być dodatnia")
-    await crud.create_deposit(db, current_user.id, deposit.amount, portfolio_id)
-    balance = await crud.get_balance(db, current_user.id, portfolio_id)
-    return {"balance": balance}
 
 @app.get("/portfolios", response_model=list[schemas.PortfolioListResponse])
 async def get_portfolios(
@@ -408,6 +355,122 @@ async def delete_portfolio(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Nie masz uprawnień do tego portfela")
     await crud.delete_portfolio(db, portfolio_id)
     return {"detail": "Portfel usunięty"}
+
+@app.get("/portfolios-comparison", response_model=list[schemas.PortfolioSeries])
+async def get_portfolios_comparison(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    portfolios = await crud.get_portfolios_by_user(db, current_user.id)
+    transactions = await crud.get_transactions_by_user(db, current_user.id)
+    transactions = [t for t in transactions if t.transaction_date]
+
+    if not portfolios or not transactions:
+        return []
+
+    start_date = date.today() - timedelta(days=365)
+    end_fetch = date.today() + timedelta(days=1)
+
+    tickers = list(set(t.ticker for t in transactions))
+
+    def fetch_ticker_history(ticker):
+        try:
+            obj = yf.Ticker(ticker)
+            hist = obj.history(start=str(start_date), end=str(end_fetch), auto_adjust=True)
+            currency = obj.fast_info.currency
+            prices = {idx.date(): float(row["Close"]) for idx, row in hist.iterrows()}
+            return ticker, prices, currency
+        except Exception:
+            return ticker, {}, None
+
+    ticker_results = await asyncio.gather(*[
+        asyncio.to_thread(fetch_ticker_history, t) for t in tickers
+    ])
+
+    ticker_prices = {}
+    currencies = {}
+    for ticker, prices, currency in ticker_results:
+        ticker_prices[ticker] = prices
+        currencies[ticker] = currency
+
+    unique_currencies = set(c for c in currencies.values() if c and c != "PLN")
+
+    def fetch_fx_history(currency):
+        try:
+            hist = yf.Ticker(f"{currency}PLN=X").history(start=str(start_date), end=str(end_fetch))
+            return currency, {idx.date(): float(row["Close"]) for idx, row in hist.iterrows()}
+        except Exception:
+            return currency, {}
+
+    fx_results = await asyncio.gather(*[
+        asyncio.to_thread(fetch_fx_history, c) for c in unique_currencies
+    ])
+    fx_rates = {c: rates for c, rates in fx_results}
+
+    def get_fx(currency, d):
+        if not currency or currency == "PLN":
+            return 1.0
+        rate_map = fx_rates.get(currency, {})
+        prev = [dd for dd in sorted(rate_map.keys()) if dd <= d]
+        return rate_map[prev[-1]] if prev else 1.0
+
+    def get_price(ticker, d):
+        price_map = ticker_prices.get(ticker, {})
+        if d in price_map:
+            return price_map[d]
+        prev = [dd for dd in sorted(price_map.keys()) if dd <= d]
+        return price_map[prev[-1]] if prev else None
+
+    all_dates = sorted(set(
+        d for prices in ticker_prices.values() for d in prices.keys()
+    ))
+
+    series = []
+    for portfolio in portfolios:
+        portfolio_txs = sorted(
+            [t for t in transactions if t.portfolio_id == portfolio.id],
+            key=lambda t: t.transaction_date
+        )
+        if not portfolio_txs:
+            continue
+
+        # zaczynamy serię od pierwszej transakcji, żeby nie było płaskiej
+        # linii zerowej (i pionowego skoku) przed pierwszym zakupem
+        first_tx_date = portfolio_txs[0].transaction_date.date()
+
+        data = []
+        for d in all_dates:
+            if d < first_tx_date:
+                continue
+
+            holdings = defaultdict(float)
+            for t in portfolio_txs:
+                if t.transaction_date.date() > d:
+                    break
+                if t.transaction_type == "buy":
+                    holdings[t.ticker] += t.quantity
+                else:
+                    holdings[t.ticker] -= t.quantity
+
+            total = 0.0
+            for ticker, qty in holdings.items():
+                if qty <= 0:
+                    continue
+                price = get_price(ticker, d)
+                if price is None:
+                    continue
+                total += qty * price * get_fx(currencies.get(ticker), d)
+
+            data.append(schemas.HistoryPoint(time=str(d), value=round(total, 2)))
+
+        series.append(schemas.PortfolioSeries(
+            portfolio_id=portfolio.id,
+            name=portfolio.name,
+            data=data
+        ))
+
+    return series
+
 
 @app.get("/ticker-currency")
 async def get_ticker_currency(symbol: str):

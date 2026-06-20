@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Portfolio</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -38,7 +39,7 @@
         <p id="sidebar-username"></p>
         <button id="nav-portfolios">Portfele</button>
         <button id="nav-transactions">Transakcje</button>
-        <button id="nav-charts">Wykresy</button>
+        <button id="nav-analytics">Analityka</button>
         <button id="nav-users">Użytkownicy</button>
         <button id="logout">Wyloguj się</button>
     </div>
@@ -48,14 +49,6 @@
             <h2>Moje portfele</h2>
             <button id="add-portfolio-btn">Dodaj portfel</button>
             <div id="portfolios-list"></div>
-        </div>
-
-        <div id="deposit-modal" class="hidden">
-            <h2>Doładuj saldo</h2>
-            <p id="deposit-current-balance"></p>
-            <input type="number" id="deposit-amount" placeholder="Kwota (PLN)" min="0.01" step="0.01">
-            <button id="deposit-submit">Doładuj</button>
-            <button id="deposit-cancel">Anuluj</button>
         </div>
 
         <div id="add-portfolio" class="hidden">
@@ -84,17 +77,13 @@
             </select>
             <input type="number" id="transaction-quantity" placeholder="Ilość">
             <div class="price-row">
-                <input type="number" id="transaction-price" placeholder="Cena (opcjonalna — pobierzemy automatycznie)">
+                <input type="number" id="transaction-price" placeholder="Cena (opcjonalna, pobierzemy automatycznie)">
                 <span id="transaction-currency" class="currency-label"></span>
             </div>
             <input type="datetime-local" id="transaction-date" required>
             <select id="transaction-portfolio-id">
                 <option value="">-- Wybierz portfel --</option>
             </select>
-            <div class="checkbox-row">
-                <input type="checkbox" id="transaction-use-balance">
-                <label for="transaction-use-balance">Zapłać z salda (<span id="form-balance-display">— PLN</span>)</label>
-            </div>
             <button id="transaction-submit">Dodaj</button>
             <button id="transaction-cancel">Anuluj</button>
         </div>
@@ -113,27 +102,53 @@
 
         <div id="view-portfolio-detail" class="hidden">
             <div id="portfolio-detail-header">
-                <button id="portfolio-detail-back">← Wróć do portfeli</button>
+                <button id="portfolio-detail-back">Wróć do portfeli</button>
                 <h2 id="portfolio-detail-name"></h2>
-                <div id="portfolio-balance-row">
-                    <span id="portfolio-balance-display">Saldo: — PLN</span>
-                    <button id="deposit-btn">+ Doładuj</button>
-                </div>
             </div>
             <button id="add-transaction-detail-btn">Dodaj transakcję</button>
             <div id="portfolio-transactions-list"></div>
         </div>
 
-        <div id="view-charts" class="hidden">
-            <h2>Wykresy</h2>
-            <div id="charts-container">
-                <div class="chart-card">
-                    <h3>Alokacja portfela</h3>
-                    <canvas id="chart-allocation"></canvas>
+        <div id="view-analytics" class="hidden">
+            <h2>Analityka</h2>
+
+            <div id="analytics-loading" class="hidden">Ładowanie danych historycznych...</div>
+
+            <div id="analytics-content" class="hidden">
+                <div id="analytics-controls">
+                    <label for="analytics-portfolio-select">Portfel:</label>
+                    <select id="analytics-portfolio-select">
+                        <option value="">-- Wybierz portfel --</option>
+                    </select>
                 </div>
-                <div class="chart-card">
-                    <h3>Zysk/Strata per ticker (PLN)</h3>
-                    <canvas id="chart-profit"></canvas>
+
+                <div id="analytics-cards" class="hidden">
+                    <div class="analytics-stat-card">
+                        <span class="analytics-stat-label">Całość zrealizowanych</span>
+                        <span id="analytics-realized" class="analytics-stat-value">-</span>
+                    </div>
+                    <div class="analytics-stat-card">
+                        <span class="analytics-stat-label">Łączny zysk/strata</span>
+                        <span id="analytics-total" class="analytics-stat-value">-</span>
+                    </div>
+                    <div class="analytics-stat-card">
+                        <span class="analytics-stat-label">Zysk % portfela</span>
+                        <span id="analytics-percent" class="analytics-stat-value">-</span>
+                    </div>
+                </div>
+
+                <h3 class="analytics-subtitle">Wartość wybranego portfela (PLN), domyślnie ostatni miesiąc (dane z roku, można przewijać i oddalać)</h3>
+                <div id="analytics-chart-container"></div>
+
+                <h3 class="analytics-subtitle">Udział portfeli w całości</h3>
+                <div id="analytics-allocation-row">
+                    <div id="analytics-donut-wrap">
+                        <canvas id="chart-allocation"></canvas>
+                    </div>
+                    <div id="analytics-total-value-card">
+                        <span class="analytics-stat-label">Łączna wartość portfeli</span>
+                        <span id="analytics-total-value" class="analytics-total-value">-</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -153,13 +168,13 @@
         </div>
 
         <div id="view-user-portfolios" class="hidden">
-            <button id="user-portfolios-back">← Wróć do użytkowników</button>
+            <button id="user-portfolios-back">Wróć do użytkowników</button>
             <h2 id="user-portfolios-name"></h2>
             <div id="user-portfolios-list"></div>
         </div>
 
         <div id="view-public-portfolio" class="hidden">
-            <button id="public-portfolio-back">← Wróć do użytkownika</button>
+            <button id="public-portfolio-back">Wróć do użytkownika</button>
             <h2 id="public-portfolio-name"></h2>
             <div id="public-portfolio-transactions-list"></div>
         </div>

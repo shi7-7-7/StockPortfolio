@@ -12,7 +12,6 @@ class TransactionBase(BaseModel):
 class TransactionCreate(TransactionBase):
     portfolio_id: int
     transaction_date: datetime
-    use_balance: bool = False
 
 class TransactionResponse(TransactionBase):
     id: int
@@ -64,13 +63,6 @@ class PortfolioListResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-class PortfolioResponse(PortfolioBase):
-    id: int
-    owner_id: int
-    transactions: List[TransactionResponse] = []
-
-    model_config = ConfigDict(from_attributes=True)
-
 class UserCreate(BaseModel):
     username: str
     password: str
@@ -93,16 +85,11 @@ class UserListResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-class UserResponse(BaseModel):
-    id: int
-    username: str
-    portfolios: List[PortfolioResponse] = []
+class HistoryPoint(BaseModel):
+    time: str
+    value: float
 
-    model_config = ConfigDict(from_attributes=True)
-
-class DepositCreate(BaseModel):
-    amount: float
+class PortfolioSeries(BaseModel):
     portfolio_id: int
-
-class BalanceResponse(BaseModel):
-    balance: float
+    name: str
+    data: List[HistoryPoint]

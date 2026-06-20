@@ -223,33 +223,9 @@ button:hover {
     flex: 1;
 }
 
-#portfolio-balance-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background-color: white;
-    border: 1px solid silver;
-    border-radius: 6px;
-    padding: 8px 14px;
-    font-size: 14px;
-}
-
-#portfolio-balance-row #deposit-btn {
-    background-color: steelblue;
-    color: white;
-    border: 1px solid steelblue;
-    padding: 4px 12px;
-    font-size: 13px;
-}
-
-#portfolio-balance-row #deposit-btn:hover {
-    background-color: royalblue;
-    border-color: royalblue;
-}
-
 /* MODALS */
 
-#add-portfolio, #add-transaction, #sell-transaction, #deposit-modal {
+#add-portfolio, #add-transaction, #sell-transaction {
     background-color: white;
     padding: 32px;
     border-radius: 8px;
@@ -266,7 +242,7 @@ button:hover {
     gap: 8px;
 }
 
-#add-portfolio input:not([type="checkbox"]), #add-transaction input:not([type="checkbox"]), #add-transaction select, #sell-transaction input, #deposit-modal input {
+#add-portfolio input:not([type="checkbox"]), #add-transaction input:not([type="checkbox"]), #add-transaction select, #sell-transaction input {
     padding: 8px 12px;
     border: 1px solid silver;
     border-radius: 4px;
@@ -275,7 +251,7 @@ button:hover {
     height: 36px;
 }
 
-#add-portfolio input:not([type="checkbox"]):focus, #add-transaction input:not([type="checkbox"]):focus, #add-transaction select:focus, #sell-transaction input:focus, #deposit-modal input:focus {
+#add-portfolio input:not([type="checkbox"]):focus, #add-transaction input:not([type="checkbox"]):focus, #add-transaction select:focus, #sell-transaction input:focus {
     outline: none;
     border-color: steelblue;
 }
@@ -288,23 +264,12 @@ button:hover {
 .type-sell { color: indianred; }
 .muted { color: gray; }
 
-.currency-warning {
-    color: goldenrod;
-    font-size: 12px;
-}
-
 /* TABLE ACTIONS CELL */
 
 .actions-cell {
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
-}
-
-/* SUMMARY ITEMS */
-
-.summary-pln {
-    color: gray;
 }
 
 .price-row {
@@ -415,28 +380,6 @@ button:hover {
     font-size: 14px;
 }
 
-/* CHARTS */
-
-#charts-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-    gap: 24px;
-    margin-top: 16px;
-}
-
-.chart-card {
-    background-color: white;
-    border: 1px solid silver;
-    border-radius: 8px;
-    padding: 24px;
-}
-
-.chart-card h3 {
-    font-size: 15px;
-    color: darkslategray;
-    margin-bottom: 16px;
-}
-
 /* USER PORTFOLIOS */
 
 .view-btn {
@@ -450,6 +393,125 @@ button:hover {
     color: white;
 }
 
+/* ANALYTICS */
+
+#analytics-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 16px 0;
+}
+
+#analytics-controls label {
+    font-size: 14px;
+    font-weight: bold;
+    color: darkslategray;
+}
+
+#analytics-controls select {
+    padding: 8px 12px;
+    border: 1px solid silver;
+    border-radius: 4px;
+    font-size: 14px;
+    min-width: 220px;
+}
+
+#analytics-controls select:focus {
+    outline: none;
+    border-color: steelblue;
+}
+
+#analytics-cards {
+    display: flex;
+    gap: 16px;
+    margin: 16px 0;
+    flex-wrap: wrap;
+}
+
+.analytics-stat-card {
+    background-color: white;
+    border: 1px solid silver;
+    border-radius: 8px;
+    padding: 14px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 180px;
+}
+
+.analytics-stat-label {
+    font-size: 12px;
+    color: gray;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.analytics-stat-value {
+    font-size: 18px;
+    font-weight: bold;
+    color: darkslategray;
+}
+
+#analytics-loading {
+    color: gray;
+    font-size: 14px;
+    margin: 16px 0;
+    padding: 12px;
+}
+
+.analytics-subtitle {
+    font-size: 16px;
+    color: darkslategray;
+    margin: 24px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid silver;
+}
+
+#analytics-chart-container {
+    background-color: white;
+    border: 1px solid silver;
+    border-radius: 8px;
+    overflow: hidden;
+    width: 100%;
+}
+
+#analytics-allocation-row {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    align-items: stretch;
+    flex-wrap: wrap;
+}
+
+#analytics-donut-wrap {
+    background-color: white;
+    border: 1px solid silver;
+    border-radius: 8px;
+    padding: 20px;
+    height: 340px;
+    flex: 1 1 0;
+    min-width: 320px;
+}
+
+#analytics-total-value-card {
+    background-color: white;
+    border: 1px solid silver;
+    border-radius: 8px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    flex: 1 1 0;
+    min-width: 260px;
+}
+
+.analytics-total-value {
+    font-size: 32px;
+    font-weight: bold;
+    color: steelblue;
+}
+
 /* TRANSACTIONS LIST */
 
 #transactions-list {
@@ -459,21 +521,9 @@ button:hover {
     margin-top: 16px;
 }
 
-.transaction-row {
-    background-color: white;
-    border: 1px solid silver;
-    border-radius: 4px;
-    padding: 12px 16px;
-    display: flex;
-    gap: 16px;
-    align-items: center;
-}
+/* Media queries / responsywność */
 
-/* ================================
-   MEDIA QUERIES — RESPONSYWNOŚĆ
-   ================================ */
-
-/* TABLET (max 1024px) */
+/* Tablet (max 1024px) */
 @media (max-width: 1024px) {
     #sidebar {
         width: 180px;
@@ -544,7 +594,7 @@ button:hover {
     }
 
     /* modal na pełną szerokość */
-    #add-portfolio, #add-transaction, #sell-transaction, #deposit-modal {
+    #add-portfolio, #add-transaction, #sell-transaction {
         width: 90%;
         padding: 24px 16px;
     }
@@ -557,11 +607,6 @@ button:hover {
 
     #portfolios-list {
         grid-template-columns: 1fr;
-    }
-
-    .transaction-row {
-        flex-wrap: wrap;
-        gap: 8px;
     }
 }
 
